@@ -53,6 +53,7 @@ class GuidesRecord(db.Model):
     thumbnail_url: str = db.Column(db.String(500), nullable=False)
     # audio_url: str = db.Column(db.String(500), nullable=False)
     audio_hash: str = db.Column(db.String(500), nullable=False)
+    image_hash: str = db.Column(db.String(500), nullable=False)
 
     user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
     user = db.relationship("User", back_populates="guides_record")
@@ -77,4 +78,21 @@ class GuidesRecord(db.Model):
         sa.UniqueConstraint("user_id", "name", name="uq_user_name"),
         #pomocniczy indeks
         sa.Index("ix_audio_likes", "likes"),
+    )
+
+@dataclass
+class GuidesRating(db.Model):
+    __tablename__ = "guides_rating"
+    id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    guide_id: int = db.Column(
+        db.Integer, db.ForeignKey("guides_record.id"), nullable=False, index=True
+    )
+    user_id: int = db.Column(
+        db.Integer, db.ForeignKey("user.id"), nullable=False, index=True
+    )
+    rating: int = db.Column(db.Integer, nullable=False)
+
+    __table_args__ = (
+        sa.CheckConstraint("rating BETWEEN 0 AND 5", name="ck_rating_range"),
+        sa.UniqueConstraint("guide_id", "user_id", name="uq_rating_user_guide"),
     )
