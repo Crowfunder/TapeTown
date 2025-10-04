@@ -36,10 +36,10 @@ class User(db.Model):
     password_hash = db.Column(db.String(120), nullable=False)
     city_of_origin = db.Column(db.String(120), nullable=False)
     # is_local_guide = db.Column(db.Boolean, default=False)
-    profile_picture = db.Column(db.String(500), nullable=False)
+    profile_picture = db.Column(db.String(500), nullable=True)
     social_media_links = db.Column(db.String(400), nullable=True)
 
-    user = relationship("User", back_populates="Guides",lazy=True)
+    # user = relationship("User", back_populates="Guides",lazy=True)
 
 ## db for Guides 
 @dataclass
@@ -50,13 +50,13 @@ class GuidesRecord(db.Model):
     id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
     name: str = db.Column(db.String(200), nullable=False)
-    thumbnail_url: str = db.Column(db.String(500), nullable=False)
+    # thumbnail_url: str = db.Column(db.String(500), nullable=False)
     # audio_url: str = db.Column(db.String(500), nullable=False)
     audio_hash: str = db.Column(db.String(500), nullable=False)
     image_hash: str = db.Column(db.String(500), nullable=False)
 
-    user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
-    user = db.relationship("User", back_populates="guides_record")
+    user_id: int = db.Column(db.Integer, db.ForeignKey("user.user_id"), nullable=False, index=True)
+    # user = db.relationship("User", back_populates="guides_record")
 
     likes: int = db.Column(db.Integer, nullable=False, default=0)
 
@@ -88,7 +88,7 @@ class GuidesRating(db.Model):
         db.Integer, db.ForeignKey("guides_record.id"), nullable=False, index=True
     )
     user_id: int = db.Column(
-        db.Integer, db.ForeignKey("user.id"), nullable=False, index=True
+        db.Integer, db.ForeignKey("user.user_id"), nullable=False, index=True
     )
     rating: int = db.Column(db.Integer, nullable=False)
 

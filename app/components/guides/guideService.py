@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import func, select, desc
 from sqlalchemy.orm import Session
 
-from database.models import db, GuidesRecord, GuidesRating
+from app.database.models import db, GuidesRecord, GuidesRating
 
 #funkcja pomocnicza do uzyskania propozycji
 def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -62,12 +62,6 @@ def remove_guide(guide_id: int, *, by_user_id: Optional[int] = None) -> bool:
 #     db.session.add(rep)
 #     db.session.commit()
 #     return rep.id
-
-
-def get_audio_for_guide(guide_id: int) -> Optional[str]:
-    guide = GuidesRecord.query.get(guide_id)
-    return guide.audio_url if guide else None
-
 
 def get_recommended_guides(lat: float, lon: float, *, radius_km: float = 10.0, limit: int = 20) -> List[GuidesRecord]:
     if lat is None or lon is None:

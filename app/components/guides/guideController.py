@@ -1,20 +1,23 @@
 # controllers/guides_controller.py
-from app.app import db
 from __future__ import annotations
+from app.app import db
 from flask import Blueprint, request, jsonify
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound
-from database.schema.schemas import guide_out_many
+from app.database.schema.schemas import guide_out_many
+from app.components.file_storage.fsService import fs_get, fs_post
 
 from app.components.file_storage.fsService import *
-from database.models import GuidesRecord
-from components.guides.guideService import (
-    add_guide, remove_guide, report_guide,
-    get_audio_for_guide, get_recommended_guides, add_rating
+from app.database.models import GuidesRecord
+from app.database.schema.schemas import guide_out_one
+from app.components.guides.guideService import (
+    add_guide, remove_guide,
+    get_recommended_guides, add_rating
 )
 
-guides_bp = Blueprint("guides", __name__)
+bp = Blueprint("guides", __name__)
 
-@guides_bp.delete("/<int:guide_id>")
+
+@bp.delete("/<int:guide_id>")
 def api_remove_guide(guide_id: int):
     by_user_id = request.args.get("by_user_id", type=int)
     try:
@@ -26,27 +29,34 @@ def api_remove_guide(guide_id: int):
     return "", 204
 
 # POST /api/guides/<id>/report -> report guide, return report id
-@guides_bp.post("/<int:guide_id>/report")
-def api_report_guide(guide_id: int):
-    data = request.get_json(silent=True) or {}
-    reason = data.get("reason")
-    reporter = data.get("user_id")
-    if not reason:
-        raise BadRequest("Field 'reason' is required.")
-    report_id = report_guide(guide_id, reason=reason, reporter_user_id=reporter)
-    return jsonify({"report_id": report_id}), 201
+# @bp.post("/<int:guide_id>/report")
+# def api_report_guide(guide_id: int):
+#     data = request.get_json(silent=True) or {}
+#     reason = data.get("reason")
+#     reporter = data.get("user_id")
+#     if not reason:
+#         raise BadRequest("Field 'reason' is required.")
+#     report_id = report_guide(guide_id, reason=reason, reporter_user_id=reporter)
+#     return jsonify({"report_id": report_id}), 201
 
-# GET /api/guides/<id>/audio -> return only audio url
-@guides_bp.get("/<int:guide_id>/audio")
-def api_get_audio_for_guide(guide_id: int):
-    url = get_audio_for_guide(guide_id)
-    if not url:
-        raise NotFound("Guide not found.")
-    return jsonify({"audio_url": url})
+@bp.get("/<int:guide_id>")
+def get_guide(id: int):
+    # Preferowany sposób (SQLAlchemy 2.0 / Flask-SQLAlchemy 3.x):
+    guide = db.session.get(GuidesRecord, id)
+
+    # Fallback dla starszych wersji (jeśli .get() zwróci None i model ma .query):
+    if guide is None and hasattr(GuidesRecord, "query"):
+        guide = GuidesRecord.query.get(id)
+
+    if guide is None:
+        return jsonify({"error": "Guide nie istnieje"}), 404
+
+    data = guide_out_one.dump(guide)
+    return jsonify(data), 200
 
 # GET /api/guides/recommended?lat=&lon=&radius_km=&limit=
 # return only list of ids
-@guides_bp.get("/recommended")
+@bp.get("/recommended")
 def api_get_recommended():
     lat = request.args.get("lat", type=float)
     lon = request.args.get("lon", type=float)
@@ -58,7 +68,7 @@ def api_get_recommended():
     guides = get_recommended_guides(lat, lon, radius_km=radius, limit=limit)  # lista ORM
     return jsonify(guide_out_many.dump(guides)), 200
 
-@guides_bp.post("/guides/<int:guide_id>/rating")
+@bp.post("/guides/<int:guide_id>/rating")
 def api_add_rating(guide_id: int):
     payload = request.get_json(silent=True) or request.form or {}
 
@@ -81,7 +91,7 @@ def api_add_rating(guide_id: int):
 
     return jsonify(result), 201
 
-@guides_bp.post("/upload")
+@bp.post("/upload")
 def api_add_guide():
     audio = request.files.get("file")
     if audio is None or audio.filename == "":
