@@ -1,7 +1,7 @@
 from flask import Blueprint, request, current_app, g, jsonify,session
 from sqlalchemy import query
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.database.models import db, User
+from app.database.models import db, User, GuidesRecord
 from userServices import check_if_data_is_valid
 from flask_login import login_required
 
@@ -55,5 +55,8 @@ def logout():
 
 
 @bp.route('/get_guides', methods=['GET'])
+@login_required
 def get_guides():
-    pass 
+    user_id = session.get('user_id')
+    guidesRecord = GuidesRecord.query.filter_by(user_id=user_id).all()
+    return jsonify({'guides': [guide.to_dict() for guide in guidesRecord]}), 200
