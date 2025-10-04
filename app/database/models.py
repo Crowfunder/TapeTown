@@ -36,6 +36,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(120), nullable=False)
     city_of_origin = db.Column(db.String(120), nullable=False)
     # is_local_guide = db.Column(db.Boolean, default=False)
+    profile_url = db.Column(db.String(500), nullable=False)
     social_media_links = db.Column(db.String(400), nullable=True)
 
     user = relationship("User", back_populates="Guides",lazy=True)

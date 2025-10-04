@@ -14,15 +14,17 @@ def create_user():
     if check_if_data_is_valid(data):
         username = data.get('username')
         password = data.get('password')
+        profile_url = data.get('profile_url')
         city_of_origin = data.get('city_of_origin')
-        social_media_links = data.get('social_media_links', '')
+        social_media_links = data.get('social_media_links')
 
         # Create new user
         new_user = User(
             username=username,
             password_hash=generate_password_hash(password),
             city_of_origin=city_of_origin,
-            social_media_links=social_media_links
+            social_media_links=social_media_links,
+            profile_url=profile_url
         )
         db.session.add(new_user)
         db.session.commit()
