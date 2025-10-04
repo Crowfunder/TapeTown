@@ -8,9 +8,10 @@ from app.components.file_storage.fsService import fs_get, fs_post
 
 from app.components.file_storage.fsService import *
 from app.database.models import GuidesRecord
+from app.database.schema.schemas import guide_out_one
 from app.components.guides.guideService import (
     add_guide, remove_guide,
-    get_audio_for_guide, get_recommended_guides, add_rating
+    get_recommended_guides, add_rating
 )
 
 bp = Blueprint("guides", __name__, url_prefix="/api/guides")
@@ -38,13 +39,20 @@ def api_remove_guide(guide_id: int):
 #     report_id = report_guide(guide_id, reason=reason, reporter_user_id=reporter)
 #     return jsonify({"report_id": report_id}), 201
 
-# GET /api/guides/<id>/audio -> return only audio url
-@bp.get("/<int:guide_id>/audio")
-def api_get_audio_for_guide(guide_id: int):
-    url = get_audio_for_guide(guide_id)
-    if not url:
-        raise NotFound("Guide not found.")
-    return jsonify({"audio_url": url})
+@bp.get("/<int:guide_id>")
+def get_guide(id: int):
+    # Preferowany sposób (SQLAlchemy 2.0 / Flask-SQLAlchemy 3.x):
+    guide = db.session.get(GuidesRecord, id)
+
+    # Fallback dla starszych wersji (jeśli .get() zwróci None i model ma .query):
+    if guide is None and hasattr(GuidesRecord, "query"):
+        guide = GuidesRecord.query.get(id)
+
+    if guide is None:
+        return jsonify({"error": "Guide nie istnieje"}), 404
+
+    data = guide_out_one.dump(guide)
+    return jsonify(data), 200
 
 # GET /api/guides/recommended?lat=&lon=&radius_km=&limit=
 # return only list of ids

@@ -63,12 +63,6 @@ def remove_guide(guide_id: int, *, by_user_id: Optional[int] = None) -> bool:
 #     db.session.commit()
 #     return rep.id
 
-
-def get_audio_for_guide(guide_id: int) -> Optional[str]:
-    guide = GuidesRecord.query.get(guide_id)
-    return guide.audio_url if guide else None
-
-
 def get_recommended_guides(lat: float, lon: float, *, radius_km: float = 10.0, limit: int = 20) -> List[GuidesRecord]:
     if lat is None or lon is None:
         return []
