@@ -16,8 +16,9 @@ def fs_post(file):
 
 
     # Save file if it doesn't already exist
+    os.makedirs(BLOBS_DIR, exist_ok=True)
     if not os.path.exists(save_path):
-        with open(save_path, 'wb') as f:
+        with open(save_path, 'wb+') as f:
             f.write(data)
 
     fblob = FileBlob(file_hash=file_hash, file_path=save_path)

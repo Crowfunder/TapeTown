@@ -7,7 +7,7 @@ from app.database.schema.schemas import guide_out_many
 from app.components.file_storage.fsService import fs_get, fs_post
 
 from app.components.file_storage.fsService import *
-from app.database.models import GuidesRecord
+from app.database.models import GuidesRating, GuidesRecord
 from app.database.schema.schemas import guide_out_one
 from app.components.guides.guideService import (
     add_guide, remove_guide,
@@ -40,14 +40,8 @@ def api_remove_guide(guide_id: int):
 #     return jsonify({"report_id": report_id}), 201
 
 @bp.get("/<int:guide_id>")
-def get_guide(id: int):
-    # Preferowany sposób (SQLAlchemy 2.0 / Flask-SQLAlchemy 3.x):
-    guide = db.session.get(GuidesRecord, id)
-
-    # Fallback dla starszych wersji (jeśli .get() zwróci None i model ma .query):
-    if guide is None and hasattr(GuidesRecord, "query"):
-        guide = GuidesRecord.query.get(id)
-
+def get_guide(guide_id: int):
+    guide = GuidesRecord.query.get(guide_id)
     if guide is None:
         return jsonify({"error": "Guide nie istnieje"}), 404
 
@@ -58,38 +52,43 @@ def get_guide(id: int):
 # return only list of ids
 @bp.get("/recommended")
 def api_get_recommended():
-    lat = request.args.get("lat", type=float)
-    lon = request.args.get("lon", type=float)
-    radius = request.args.get("radius_km", default=10.0, type=float)
-    limit = request.args.get("limit", default=20, type=int)
+    lat = request.form.get("latitude", type=float)
+    lon = request.form.get("longitude", type=float)
+    radius = request.form.get("radius_km", default=10.0, type=float)
+    limit = request.form.get("limit", default=20, type=int)
     if lat is None or lon is None:
-        raise BadRequest("Query params 'lat' and 'lon' are required.")
+        raise BadRequest("Query params 'latitude' and 'longitude' are required.")
 
     guides = get_recommended_guides(lat, lon, radius_km=radius, limit=limit)  # lista ORM
     return jsonify(guide_out_many.dump(guides)), 200
 
-@bp.post("/guides/<int:guide_id>/rating")
+@bp.post("/<int:guide_id>/rating")
 def api_add_rating(guide_id: int):
-    payload = request.get_json(silent=True) or request.form or {}
+    rating = int(request.form.get("rating"))
+    user_id = request.form.get("user_id")
 
-    def to_int(v):
-        try:
-            return int(v)
-        except (TypeError, ValueError):
-            return None
-
-    user_id = to_int(payload.get("user_id"))
-    value   = to_int(payload.get("value"))
-
-    if user_id is None or value is None:
-        raise BadRequest("Fields 'user_id' (int) and 'value' (1..5) are required.")
+    if user_id is None or rating is None:
+        raise BadRequest("Fields 'user_id' (int) and 'rating' (1..5) are required.")
 
     try:
-        result = add_rating(guide_id=guide_id, user_id=user_id, value=value)
+        result = add_rating(guide_id=guide_id, user_id=user_id, value=rating)
     except ValueError as e:
         raise BadRequest(str(e))
 
     return jsonify(result), 201
+
+@bp.get("/<int:guide_id>/rating")
+def api_get_rating(guide_id: int):
+    guide = GuidesRecord.query.get(guide_id)
+    if guide is None:
+        raise NotFound("Guide not found.")
+    # average rating and count
+    avg_rating = db.session.query(db.func.avg(GuidesRating.rating)).filter_by(guide_id=guide_id).scalar()
+    count = db.session.query(db.func.count(GuidesRating.id)).filter_by(guide_id=guide_id).scalar()
+    return jsonify({
+        "avg": float(avg_rating) if avg_rating is not None else None,
+        "count": count
+    }), 200
 
 @bp.post("/upload")
 def api_add_guide():

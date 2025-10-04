@@ -1,3 +1,4 @@
-ENDPOINT_FILES = '/'
-DOWNLOAD_URL_PARAM = 'q'
-BLOBS_DIR = 'app/components/file_storage/blobs'
+import os
+
+
+BLOBS_DIR = f'{os.getcwd()}/app/components/file_storage/blobs'
