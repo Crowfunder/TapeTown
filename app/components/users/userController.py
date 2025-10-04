@@ -9,7 +9,6 @@ bp = Blueprint('user', __name__)
 
 @bp.route('/create_user', methods=['POST'])
 def create_user():
-
     data = request.get_json()
     if check_if_data_is_valid(data):
         username = data.get('username')
