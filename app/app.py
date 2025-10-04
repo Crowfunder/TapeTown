@@ -6,8 +6,6 @@ import logging
 
 from app.database.models import *
 from app.database.models import db
-from app.settings.settingsManager import settingsManager
-from app.components.pairing.pin.pinManager import pin
 
 
 # Flask quickstart:
@@ -50,11 +48,6 @@ def create_app():
     except OSError:
         pass
 
-    from flask_socketio import SocketIO
-    socketio=SocketIO(app, cors_allowed_origins='*')
-    app.socketio = socketio
-    
-    app.socket_server = None
 
     
 
@@ -77,12 +70,6 @@ def create_app():
     with app.app_context():
         db.create_all()
 
-
-
-    from app.components.pairing.serverEvents import serverEventsHandler
-
-    # Initalize special components in app
-    app.pin = pin
 
     # Register blueprints (views)
     # https://flask.palletsprojects.com/en/3.0.x/blueprints/
