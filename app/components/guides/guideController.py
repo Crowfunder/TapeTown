@@ -4,8 +4,9 @@ from __future__ import annotations
 from flask import Blueprint, request, jsonify
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound
 
-from models import GuidesRecord
-from services.guides_service import (
+from app.components.file_storage.fsService import *
+from database.models import GuidesRecord
+from components.guides.guideService import (
     add_guide, remove_guide, report_guide,
     get_audio_for_guide, get_recommended_guides, add_rating
 )
@@ -86,27 +87,36 @@ def api_add_rating(guide_id: int):
 
 @guides_bp.post("/upload")
 def api_add_guide():
-    if 'file' not in request.files:
-        return {'error': 'No file part in the request'}, 400
+    audio = request.files.get("file")
+    if audio is None or audio.filename == "":
+        return {"error": "No audio file provided"}, 400
 
-    file = request.files['file']
-    if file.filename == '':
-        return {'error': 'No selected file'}, 400
-    
+    image = request.files.get("image") or request.files.get("thumbnail")
+    if image is None or image.filename == "":
+        return {"error": "No image file provided"}, 400
+
     name = request.form.get("name")
     user_id = request.form.get("user_id", type=int)
     lat = request.form.get("latitude", type=float)
     lon = request.form.get("longitude", type=float)
 
-    file_hash = fs_upload(file)
+    missing = [k for k, v in {
+        "name": name, "user_id": user_id, "latitude": lat, "longitude": lon
+    }.items() if v in (None, "")]
+    if missing:
+        return {"error": f"Missing fields: {', '.join(missing)}"}, 400
+
+    audio_hash = fs_post(audio)
+    image_hash = fs_post(image)
 
     guide = GuidesRecord(
-        name = name,
-        user_id = user_id,
-        latitude = lat,
-        longitude = lon,
-        audio_hash = file_hash,
-        )
+        name=name,
+        user_id=user_id,
+        latitude=lat,
+        longitude=lon,
+        audio_hash=audio_hash,
+        image_hash=image_hash,
+    )
 
     db.session.add(guide)
     db.session.commit()

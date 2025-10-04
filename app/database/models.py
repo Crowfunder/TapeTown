@@ -52,6 +52,7 @@ class GuidesRecord(db.Model):
     thumbnail_url: str = db.Column(db.String(500), nullable=False)
     # audio_url: str = db.Column(db.String(500), nullable=False)
     audio_hash: str = db.Column(db.String(500), nullable=False)
+    image_hash: str = db.Column(db.String(500), nullable=False)
 
     user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
     user = db.relationship("User", back_populates="guides_record")
