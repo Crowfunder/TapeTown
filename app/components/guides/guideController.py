@@ -1,9 +1,10 @@
 # controllers/guides_controller.py
+from app.app import db
 from __future__ import annotations
 from flask import Blueprint, request, jsonify
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound
 
-from models import GuideRecord
+from models import GuidesRecord
 from services.guides_service import (
     add_guide, remove_guide, report_guide,
     get_audio_for_guide, get_recommended_guides, add_rating
@@ -82,3 +83,31 @@ def api_add_rating(guide_id: int):
         return jsonify(agg), 201
     except ValueError as e:
         raise BadRequest(str(e))
+
+@guides_bp.post("/upload")
+def api_add_guide():
+    if 'file' not in request.files:
+        return {'error': 'No file part in the request'}, 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return {'error': 'No selected file'}, 400
+    
+    name = request.form.get("name")
+    user_id = request.form.get("user_id", type=int)
+    lat = request.form.get("latitude", type=float)
+    lon = request.form.get("longitude", type=float)
+
+    file_hash = fs_upload(file)
+
+    guide = GuidesRecord(
+        name = name,
+        user_id = user_id,
+        latitude = lat,
+        longitude = lon,
+        audio_hash = file_hash,
+        )
+
+    db.session.add(guide)
+    db.session.commit()
+

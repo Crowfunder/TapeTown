@@ -27,19 +27,19 @@ class temp(db.Model):
 
 ## db for Guides 
 @dataclass
-class GuideRecord(db.Model):
-    __tablename__ = "GuidesRecord"
+class GuidesRecord(db.Model):
+    __tablename__ = "guides_record"
 
     # primary key
     id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
     name: str = db.Column(db.String(200), nullable=False)
     thumbnail_url: str = db.Column(db.String(500), nullable=False)
-    audio_url: str = db.Column(db.String(500), nullable=False)
-    location: str | None = db.Column(db.String(200), nullable=True)
+    # audio_url: str = db.Column(db.String(500), nullable=False)
+    audio_hash: str = db.Column(db.String(500), nullable=False)
 
     user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
-    user = db.relationship("User", back_populates="GuidesRecord")
+    user = db.relationship("User", back_populates="guides_record")
 
     likes: int = db.Column(db.Integer, nullable=False, default=0)
 
