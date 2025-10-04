@@ -3,6 +3,7 @@ from app.app import db
 from __future__ import annotations
 from flask import Blueprint, request, jsonify
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound
+from database.schema.schemas import guide_out_many
 
 from app.components.file_storage.fsService import *
 from database.models import GuidesRecord
@@ -51,15 +52,11 @@ def api_get_recommended():
     lon = request.args.get("lon", type=float)
     radius = request.args.get("radius_km", default=10.0, type=float)
     limit = request.args.get("limit", default=20, type=int)
-
     if lat is None or lon is None:
         raise BadRequest("Query params 'lat' and 'lon' are required.")
 
-    guides = get_recommended_guides(lat, lon, radius_km=radius, limit=limit)
-    return jsonify({
-        "ids": [g.id for g in guides],
-        "count": len(guides),
-    })
+    guides = get_recommended_guides(lat, lon, radius_km=radius, limit=limit)  # lista ORM
+    return jsonify(guide_out_many.dump(guides)), 200
 
 @guides_bp.post("/guides/<int:guide_id>/rating")
 def api_add_rating(guide_id: int):
