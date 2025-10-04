@@ -50,7 +50,7 @@ class GuidesRecord(db.Model):
     id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
     name: str = db.Column(db.String(200), nullable=False)
-    thumbnail_url: str = db.Column(db.String(500), nullable=False)
+    # thumbnail_url: str = db.Column(db.String(500), nullable=False)
     # audio_url: str = db.Column(db.String(500), nullable=False)
     audio_hash: str = db.Column(db.String(500), nullable=False)
     image_hash: str = db.Column(db.String(500), nullable=False)
@@ -88,7 +88,7 @@ class GuidesRating(db.Model):
         db.Integer, db.ForeignKey("guides_record.id"), nullable=False, index=True
     )
     user_id: int = db.Column(
-        db.Integer, db.ForeignKey("user.id"), nullable=False, index=True
+        db.Integer, db.ForeignKey("user.user_id"), nullable=False, index=True
     )
     rating: int = db.Column(db.Integer, nullable=False)
 

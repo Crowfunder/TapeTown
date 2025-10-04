@@ -58,7 +58,6 @@ def logout():
 
 
 @bp.route('/get_guides', methods=['GET'])
-@login_required
 def get_guides():
     user_id = session.get('user_id')
     guidesRecord = GuidesRecord.query.filter_by(user_id=user_id).all()

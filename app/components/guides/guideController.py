@@ -3,13 +3,13 @@ from __future__ import annotations
 from app.app import db
 from flask import Blueprint, request, jsonify
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound
-from database.schema.schemas import guide_out_many
+from app.database.schema.schemas import guide_out_many
 from app.components.file_storage.fsService import fs_get, fs_post
 
 from app.components.file_storage.fsService import *
-from database.models import GuidesRecord
-from components.guides.guideService import (
-    add_guide, remove_guide, report_guide,
+from app.database.models import GuidesRecord
+from app.components.guides.guideService import (
+    add_guide, remove_guide,
     get_audio_for_guide, get_recommended_guides, add_rating
 )
 
@@ -60,7 +60,7 @@ def api_get_recommended():
     guides = get_recommended_guides(lat, lon, radius_km=radius, limit=limit)  # lista ORM
     return jsonify(guide_out_many.dump(guides)), 200
 
-@guides_bp.post("/guides/<int:guide_id>/rating")
+@bp.post("/guides/<int:guide_id>/rating")
 def api_add_rating(guide_id: int):
     payload = request.get_json(silent=True) or request.form or {}
 
