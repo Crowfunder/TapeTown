@@ -25,13 +25,10 @@ class temp(db.Model):
 
     Id = db.Column(db.Integer, primary_key=True)
 
+## db for Guides 
 @dataclass
-class AudioRecord(db.Model):
-    """
-    Tabela nagrań audio – zgodna ze schematem:
-    Name, Link to thumbnail, Link to audio, Location, user_id, Likes, geolocation
-    """
-    __tablename__ = "audio_record"
+class GuideRecord(db.Model):
+    __tablename__ = "GuidesRecord"
 
     # primary key
     id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -42,7 +39,7 @@ class AudioRecord(db.Model):
     location: str | None = db.Column(db.String(200), nullable=True)
 
     user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
-    user = db.relationship("User", back_populates="audio_records")
+    user = db.relationship("User", back_populates="GuidesRecord")
 
     likes: int = db.Column(db.Integer, nullable=False, default=0)
 
