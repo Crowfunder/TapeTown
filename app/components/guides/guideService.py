@@ -6,7 +6,7 @@ from typing import Optional, List, Dict, Any
 from sqlalchemy import func, select, desc
 from sqlalchemy.orm import Session
 
-from models import db, GuideRecord  # "guide" == AudioRecord
+from app.database.models import db, GuidesRecord  # "guide" == AudioRecord
 # optional (create these models in models.py):
 # from models import GuideReport, GuideRating
 
@@ -21,13 +21,13 @@ def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     return R * c
 
 
-def add_guide(payload: Dict[str, Any]) -> GuideRecord:
+def add_guide(payload: Dict[str, Any]) -> GuidesRecord:
     required = ["name", "thumbnail_url", "audio_url", "user_id"]
     missing = [k for k in required if not payload.get(k)]
     if missing:
         raise ValueError(f"Missing fields: {', '.join(missing)}")
 
-    guide = GuideRecord(
+    guide = GuidesRecord(
         name=payload["name"],
         thumbnail_url=payload["thumbnail_url"],
         audio_url=payload["audio_url"],
@@ -43,7 +43,7 @@ def add_guide(payload: Dict[str, Any]) -> GuideRecord:
 
 
 def remove_guide(guide_id: int, *, by_user_id: Optional[int] = None) -> bool:
-    guide = GuideRecord.query.get(guide_id)
+    guide = GuidesRecord.query.get(guide_id)
     if not guide:
         return False
     # simple ownership check (skip if not needed):
@@ -66,21 +66,21 @@ def report_guide(guide_id: int, reason: str, reporter_user_id: Optional[int] = N
 
 
 def get_audio_for_guide(guide_id: int) -> Optional[str]:
-    guide = GuideRecord.query.get(guide_id)
+    guide = GuidesRecord.query.get(guide_id)
     return guide.audio_url if guide else None
 
 
-def get_recommended_guides(lat: float, lon: float, *, radius_km: float = 10.0, limit: int = 20) -> List[GuideRecord]:
+def get_recommended_guides(lat: float, lon: float, *, radius_km: float = 10.0, limit: int = 20) -> List[GuidesRecord]:
     if lat is None or lon is None:
         return []
 
     # Coarse box ~0.12° per 13 km; adjust with radius
     deg = radius_km / 111.0
     q = (
-        GuideRecord.query
-        .filter(GuideRecord.latitude.isnot(None), GuideRecord.longitude.isnot(None))
-        .filter(GuideRecord.latitude.between(lat - deg, lat + deg))
-        .filter(GuideRecord.longitude.between(lon - deg, lon + deg))
+        GuidesRecord.query
+        .filter(GuidesRecord.latitude.isnot(None), GuidesRecord.longitude.isnot(None))
+        .filter(GuidesRecord.latitude.between(lat - deg, lat + deg))
+        .filter(GuidesRecord.longitude.between(lon - deg, lon + deg))
         .limit(limit * 5)  # wider prefetch
     ).all()
 

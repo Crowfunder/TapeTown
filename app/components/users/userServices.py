@@ -1,6 +1,7 @@
+from app.components.file_storage.fsController import file_get
 from app.database.models import  User
-from sqlalchemy import query
-from app.components.file_storage.fsService import file_get, file_post
+from sqlalchemy import select
+from app.components.file_storage.fsService import fs_get, fs_post
 
 def check_if_data_is_valid(data):
     #checking if all requaired fields are here
@@ -17,5 +18,5 @@ def check_if_data_is_valid(data):
     return True
 
 def manage_picture_upload(profile_picture):
-    picture_hash = file_post(profile_picture)
-    return file_get(picture_hash)
+    picture_hash = fs_post(profile_picture)
+    return fs_get(picture_hash)

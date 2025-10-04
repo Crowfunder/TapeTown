@@ -1,28 +1,20 @@
 # controllers/guides_controller.py
-from app.app import db
 from __future__ import annotations
+from app.app import db
 from flask import Blueprint, request, jsonify
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound
+from app.components.file_storage.fsService import fs_get, fs_post
 
-from models import GuidesRecord
-from services.guides_service import (
+from app.database.models import GuidesRecord
+from .guideService import (
     add_guide, remove_guide, report_guide,
     get_audio_for_guide, get_recommended_guides, add_rating
 )
 
-guides_bp = Blueprint("guides", __name__)
+bp = Blueprint("guides", __name__)
 
-# POST /api/guides -> add guide, return only new id
-@guides_bp.post("/")
-def api_add_guide():
-    data = request.get_json(silent=True) or {}
-    try:
-        g = add_guide(data)
-        return jsonify({"id": g.id}), 201
-    except ValueError as e:
-        raise BadRequest(str(e))
 
-@guides_bp.delete("/<int:guide_id>")
+@bp.delete("/<int:guide_id>")
 def api_remove_guide(guide_id: int):
     by_user_id = request.args.get("by_user_id", type=int)
     try:
@@ -34,18 +26,18 @@ def api_remove_guide(guide_id: int):
     return "", 204
 
 # POST /api/guides/<id>/report -> report guide, return report id
-@guides_bp.post("/<int:guide_id>/report")
-def api_report_guide(guide_id: int):
-    data = request.get_json(silent=True) or {}
-    reason = data.get("reason")
-    reporter = data.get("user_id")
-    if not reason:
-        raise BadRequest("Field 'reason' is required.")
-    report_id = report_guide(guide_id, reason=reason, reporter_user_id=reporter)
-    return jsonify({"report_id": report_id}), 201
+# @bp.post("/<int:guide_id>/report")
+# def api_report_guide(guide_id: int):
+#     data = request.get_json(silent=True) or {}
+#     reason = data.get("reason")
+#     reporter = data.get("user_id")
+#     if not reason:
+#         raise BadRequest("Field 'reason' is required.")
+#     report_id = report_guide(guide_id, reason=reason, reporter_user_id=reporter)
+#     return jsonify({"report_id": report_id}), 201
 
 # GET /api/guides/<id>/audio -> return only audio url
-@guides_bp.get("/<int:guide_id>/audio")
+@bp.get("/<int:guide_id>/audio")
 def api_get_audio_for_guide(guide_id: int):
     url = get_audio_for_guide(guide_id)
     if not url:
@@ -54,7 +46,7 @@ def api_get_audio_for_guide(guide_id: int):
 
 # GET /api/guides/recommended?lat=&lon=&radius_km=&limit=
 # return only list of ids
-@guides_bp.get("/recommended")
+@bp.get("/recommended")
 def api_get_recommended():
     lat = request.args.get("lat", type=float)
     lon = request.args.get("lon", type=float)
@@ -71,7 +63,7 @@ def api_get_recommended():
     })
 
 # POST /api/guides/<id>/rating -> add/update rating, return aggregate numbers
-@guides_bp.post("/<int:guide_id>/rating")
+@bp.post("/<int:guide_id>/rating")
 def api_add_rating(guide_id: int):
     data = request.get_json(silent=True) or {}
     user_id = data.get("user_id")
@@ -84,7 +76,7 @@ def api_add_rating(guide_id: int):
     except ValueError as e:
         raise BadRequest(str(e))
 
-@guides_bp.post("/upload")
+@bp.post("/upload")
 def api_add_guide():
     if 'file' not in request.files:
         return {'error': 'No file part in the request'}, 400
@@ -98,7 +90,7 @@ def api_add_guide():
     lat = request.form.get("latitude", type=float)
     lon = request.form.get("longitude", type=float)
 
-    file_hash = fs_upload(file)
+    file_hash = fs_get(fs_post(file))
 
     guide = GuidesRecord(
         name = name,
