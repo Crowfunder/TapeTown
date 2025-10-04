@@ -1,3 +1,4 @@
+from time import time
 import flask, os, hashlib
 from app.components.file_storage.fsConfig import *
 from app.app import db
@@ -8,15 +9,16 @@ def fs_post(file):
     method for uploading files into file storage
     """
     data = file.read()
-    file_hash = hashlib.sha256(data).hexdigest()
+    file_hash = hashlib.sha256(data+bytes(str(time()), 'utf-8')).hexdigest()
 
     # Build file path using the hash as filename
     save_path = os.path.join(BLOBS_DIR, file_hash)
 
 
     # Save file if it doesn't already exist
+    os.makedirs(BLOBS_DIR, exist_ok=True)
     if not os.path.exists(save_path):
-        with open(save_path, 'wb') as f:
+        with open(save_path, 'wb+') as f:
             f.write(data)
 
     fblob = FileBlob(file_hash=file_hash, file_path=save_path)
