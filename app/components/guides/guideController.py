@@ -13,16 +13,6 @@ from components.guides.guideService import (
 
 guides_bp = Blueprint("guides", __name__)
 
-# POST /api/guides -> add guide, return only new id
-@guides_bp.post("/")
-def api_add_guide():
-    data = request.get_json(silent=True) or {}
-    try:
-        g = add_guide(data)
-        return jsonify({"id": g.id}), 201
-    except ValueError as e:
-        raise BadRequest(str(e))
-
 @guides_bp.delete("/<int:guide_id>")
 def api_remove_guide(guide_id: int):
     by_user_id = request.args.get("by_user_id", type=int)
@@ -71,19 +61,28 @@ def api_get_recommended():
         "count": len(guides),
     })
 
-# POST /api/guides/<id>/rating -> add/update rating, return aggregate numbers
-@guides_bp.post("/<int:guide_id>/rating")
+@guides_bp.post("/guides/<int:guide_id>/rating")
 def api_add_rating(guide_id: int):
-    data = request.get_json(silent=True) or {}
-    user_id = data.get("user_id")
-    value = data.get("value")
-    if not isinstance(user_id, int) or not isinstance(value, int):
+    payload = request.get_json(silent=True) or request.form or {}
+
+    def to_int(v):
+        try:
+            return int(v)
+        except (TypeError, ValueError):
+            return None
+
+    user_id = to_int(payload.get("user_id"))
+    value   = to_int(payload.get("value"))
+
+    if user_id is None or value is None:
         raise BadRequest("Fields 'user_id' (int) and 'value' (1..5) are required.")
+
     try:
-        agg = add_rating(guide_id, user_id, value)  # {"guide_id", "count", "avg"}
-        return jsonify(agg), 201
+        result = add_rating(guide_id=guide_id, user_id=user_id, value=value)
     except ValueError as e:
         raise BadRequest(str(e))
+
+    return jsonify(result), 201
 
 @guides_bp.post("/upload")
 def api_add_guide():

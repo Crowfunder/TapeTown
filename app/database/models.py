@@ -78,3 +78,20 @@ class GuidesRecord(db.Model):
         #pomocniczy indeks
         sa.Index("ix_audio_likes", "likes"),
     )
+
+@dataclass
+class GuidesRating(db.Model):
+    __tablename__ = "guides_rating"
+    id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    guide_id: int = db.Column(
+        db.Integer, db.ForeignKey("guides_record.id"), nullable=False, index=True
+    )
+    user_id: int = db.Column(
+        db.Integer, db.ForeignKey("user.id"), nullable=False, index=True
+    )
+    rating: int = db.Column(db.Integer, nullable=False)
+
+    __table_args__ = (
+        sa.CheckConstraint("rating BETWEEN 0 AND 5", name="ck_rating_range"),
+        sa.UniqueConstraint("guide_id", "user_id", name="uq_rating_user_guide"),
+    )
