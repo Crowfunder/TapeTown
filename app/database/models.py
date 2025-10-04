@@ -24,3 +24,16 @@ class temp(db.Model):
     __tablename__ = ''
 
     Id = db.Column(db.Integer, primary_key=True)
+
+@dataclass
+class User(db.Model):
+    __tablename__ = 'user'
+
+    user_id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password_hash = db.Column(db.String(120), nullable=False)
+    city_of_origin = db.Column(db.String(120), nullable=False)
+    # is_local_guide = db.Column(db.Boolean, default=False)
+    social_media_links = db.Column(db.String(400), nullable=True)
+
+    user = relationship("User", back_populates="Guides",lazy=True)
