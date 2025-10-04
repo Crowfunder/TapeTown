@@ -12,3 +12,4 @@ class GuideOutSchema(SQLAlchemyAutoSchema):
     # fields = ("id","name","latitude","longitude","audio_url","thumbnail_url")
 
 guide_out_many = GuideOutSchema(many=True)
+guide_out_one = GuideOutSchema()
