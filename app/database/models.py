@@ -20,10 +20,12 @@ db = SQLAlchemy()
 from dataclasses import dataclass
 
 @dataclass
-class temp(db.Model):
-    __tablename__ = ''
+class FileBlob(db.Model):
+    __tablename__ = 'files'
 
-    Id = db.Column(db.Integer, primary_key=True)
+    file_hash: str = db.Column(db.String, primary_key=True)
+    file_path: str = db.Column(db.String)
+
 
 @dataclass
 class User(db.Model):
