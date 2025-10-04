@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 import sqlalchemy as sa
 from sqlalchemy.orm import mapped_column, relationship
 from flask_sqlalchemy import SQLAlchemy
@@ -37,3 +37,41 @@ class User(db.Model):
     social_media_links = db.Column(db.String(400), nullable=True)
 
     user = relationship("User", back_populates="Guides",lazy=True)
+
+## db for Guides 
+@dataclass
+class GuideRecord(db.Model):
+    __tablename__ = "GuidesRecord"
+
+    # primary key
+    id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    name: str = db.Column(db.String(200), nullable=False)
+    thumbnail_url: str = db.Column(db.String(500), nullable=False)
+    audio_url: str = db.Column(db.String(500), nullable=False)
+    location: str | None = db.Column(db.String(200), nullable=True)
+
+    user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    user = db.relationship("User", back_populates="GuidesRecord")
+
+    likes: int = db.Column(db.Integer, nullable=False, default=0)
+
+    latitude: float | None = db.Column(db.Float, nullable=True)
+    longitude: float | None = db.Column(db.Float, nullable=True)
+
+    created_at: dt.datetime = db.Column(db.DateTime, nullable=False, default=dt.datetime.utcnow)
+
+    __table_args__ = (
+        #likes >= 0
+        sa.CheckConstraint("likes >= 0", name="ck_likes_nonneg"),
+        #dozwolone zakresy geolokalizacji lub oba NULL
+        sa.CheckConstraint(
+            "(latitude IS NULL AND longitude IS NULL) OR "
+            "(latitude BETWEEN -90 AND 90 AND longitude BETWEEN -180 AND 180)",
+            name="ck_geo_ranges"
+        ),
+        #jeden użytkownik nie może mieć dwóch rekordów o tej samej nazwie
+        sa.UniqueConstraint("user_id", "name", name="uq_user_name"),
+        #pomocniczy indeks
+        sa.Index("ix_audio_likes", "likes"),
+    )
