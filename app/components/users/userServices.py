@@ -18,5 +18,8 @@ def check_if_data_is_valid(data):
     return True
 
 def manage_picture_upload(profile_picture):
-    picture_hash = fs_post(profile_picture)
-    return fs_get(picture_hash)
+    if not profile_picture:
+        return None
+    else:
+        picture_hash = fs_post(profile_picture)
+        return fs_get(picture_hash)

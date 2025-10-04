@@ -39,7 +39,7 @@ class User(db.Model):
     profile_picture = db.Column(db.String(500), nullable=True)
     social_media_links = db.Column(db.String(400), nullable=True)
 
-    user = relationship("User", back_populates="Guides",lazy=True)
+    # user = relationship("User", back_populates="Guides",lazy=True)
 
 ## db for Guides 
 @dataclass
@@ -55,7 +55,7 @@ class GuidesRecord(db.Model):
     audio_hash: str = db.Column(db.String(500), nullable=False)
 
     user_id: int = db.Column(db.Integer, db.ForeignKey("user.user_id"), nullable=False, index=True)
-    user = db.relationship("User", back_populates="guides_record")
+    # user = db.relationship("User", back_populates="guides_record")
 
     likes: int = db.Column(db.Integer, nullable=False, default=0)
 

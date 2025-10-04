@@ -25,7 +25,7 @@ def create_user():
             password_hash=generate_password_hash(password),
             city_of_origin=city_of_origin,
             social_media_links=social_media_links,
-            profile_url=profile_url
+            profile_picture=profile_url
         )
         db.session.add(new_user)
         db.session.commit()
