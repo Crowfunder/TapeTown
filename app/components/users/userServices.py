@@ -1,5 +1,6 @@
 from app.database.models import  User
 from sqlalchemy import query
+from app.components.file_storage.fsService import file_get, file_post
 
 def check_if_data_is_valid(data):
     #checking if all requaired fields are here
@@ -12,4 +13,9 @@ def check_if_data_is_valid(data):
     existing_user = User.query.filter_by(username=data.get('username')).first()
     if existing_user:
         return False
+    
     return True
+
+def manage_picture_upload(profile_picture):
+    picture_hash = file_post(profile_picture)
+    return file_get(picture_hash)
