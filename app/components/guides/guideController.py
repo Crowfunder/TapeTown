@@ -3,10 +3,12 @@ from __future__ import annotations
 from app.app import db
 from flask import Blueprint, request, jsonify
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound
+from database.schema.schemas import guide_out_many
 from app.components.file_storage.fsService import fs_get, fs_post
 
-from app.database.models import GuidesRecord
-from .guideService import (
+from app.components.file_storage.fsService import *
+from database.models import GuidesRecord
+from components.guides.guideService import (
     add_guide, remove_guide, report_guide,
     get_audio_for_guide, get_recommended_guides, add_rating
 )
@@ -52,53 +54,67 @@ def api_get_recommended():
     lon = request.args.get("lon", type=float)
     radius = request.args.get("radius_km", default=10.0, type=float)
     limit = request.args.get("limit", default=20, type=int)
-
     if lat is None or lon is None:
         raise BadRequest("Query params 'lat' and 'lon' are required.")
 
-    guides = get_recommended_guides(lat, lon, radius_km=radius, limit=limit)
-    return jsonify({
-        "ids": [g.id for g in guides],
-        "count": len(guides),
-    })
+    guides = get_recommended_guides(lat, lon, radius_km=radius, limit=limit)  # lista ORM
+    return jsonify(guide_out_many.dump(guides)), 200
 
-# POST /api/guides/<id>/rating -> add/update rating, return aggregate numbers
-@bp.post("/<int:guide_id>/rating")
+@guides_bp.post("/guides/<int:guide_id>/rating")
 def api_add_rating(guide_id: int):
-    data = request.get_json(silent=True) or {}
-    user_id = data.get("user_id")
-    value = data.get("value")
-    if not isinstance(user_id, int) or not isinstance(value, int):
+    payload = request.get_json(silent=True) or request.form or {}
+
+    def to_int(v):
+        try:
+            return int(v)
+        except (TypeError, ValueError):
+            return None
+
+    user_id = to_int(payload.get("user_id"))
+    value   = to_int(payload.get("value"))
+
+    if user_id is None or value is None:
         raise BadRequest("Fields 'user_id' (int) and 'value' (1..5) are required.")
+
     try:
-        agg = add_rating(guide_id, user_id, value)  # {"guide_id", "count", "avg"}
-        return jsonify(agg), 201
+        result = add_rating(guide_id=guide_id, user_id=user_id, value=value)
     except ValueError as e:
         raise BadRequest(str(e))
 
+    return jsonify(result), 201
+
 @bp.post("/upload")
 def api_add_guide():
-    if 'file' not in request.files:
-        return {'error': 'No file part in the request'}, 400
+    audio = request.files.get("file")
+    if audio is None or audio.filename == "":
+        return {"error": "No audio file provided"}, 400
 
-    file = request.files['file']
-    if file.filename == '':
-        return {'error': 'No selected file'}, 400
-    
+    image = request.files.get("image") or request.files.get("thumbnail")
+    if image is None or image.filename == "":
+        return {"error": "No image file provided"}, 400
+
     name = request.form.get("name")
     user_id = request.form.get("user_id", type=int)
     lat = request.form.get("latitude", type=float)
     lon = request.form.get("longitude", type=float)
 
-    file_hash = fs_get(fs_post(file))
+    missing = [k for k, v in {
+        "name": name, "user_id": user_id, "latitude": lat, "longitude": lon
+    }.items() if v in (None, "")]
+    if missing:
+        return {"error": f"Missing fields: {', '.join(missing)}"}, 400
+
+    audio_hash = fs_post(audio)
+    image_hash = fs_post(image)
 
     guide = GuidesRecord(
-        name = name,
-        user_id = user_id,
-        latitude = lat,
-        longitude = lon,
-        audio_hash = file_hash,
-        )
+        name=name,
+        user_id=user_id,
+        latitude=lat,
+        longitude=lon,
+        audio_hash=audio_hash,
+        image_hash=image_hash,
+    )
 
     db.session.add(guide)
     db.session.commit()

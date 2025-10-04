@@ -2,13 +2,12 @@
 from __future__ import annotations
 from math import radians, sin, cos, asin, sqrt
 from typing import Optional, List, Dict, Any
+from sqlalchemy.exc import IntegrityError
 
 from sqlalchemy import func, select, desc
 from sqlalchemy.orm import Session
 
-from app.database.models import db, GuidesRecord  # "guide" == AudioRecord
-# optional (create these models in models.py):
-# from models import GuideReport, GuideRating
+from database.models import db, GuidesRecord, GuidesRating
 
 #funkcja pomocnicza do uzyskania propozycji
 def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -54,15 +53,15 @@ def remove_guide(guide_id: int, *, by_user_id: Optional[int] = None) -> bool:
     return True
 
 
-def report_guide(guide_id: int, reason: str, reporter_user_id: Optional[int] = None) -> int:
-    if not reason or len(reason) < 3:
-        raise ValueError("Reason is required.")
-    # Requires GuideReport model (id, guide_id, reason, reporter_user_id, created_at)
-    from models import GuideReport  # lazy import to avoid circulars
-    rep = GuideReport(guide_id=guide_id, reason=reason, reporter_user_id=reporter_user_id)
-    db.session.add(rep)
-    db.session.commit()
-    return rep.id
+# def report_guide(guide_id: int, reason: str, reporter_user_id: Optional[int] = None) -> int:
+#     if not reason or len(reason) < 3:
+#         raise ValueError("Reason is required.")
+#     # Requires GuideReport model (id, guide_id, reason, reporter_user_id, created_at)
+#     from models import GuideReport  # lazy import to avoid circulars
+#     rep = GuideReport(guide_id=guide_id, reason=reason, reporter_user_id=reporter_user_id)
+#     db.session.add(rep)
+#     db.session.commit()
+#     return rep.id
 
 
 def get_audio_for_guide(guide_id: int) -> Optional[str]:
@@ -97,20 +96,46 @@ def get_recommended_guides(lat: float, lon: float, *, radius_km: float = 10.0, l
 
 
 def add_rating(guide_id: int, user_id: int, value: int) -> Dict[str, Any]:
-    if value not in (1, 2, 3, 4, 5):
+    if not (1 <= value <= 5):
         raise ValueError("Rating must be in 1..5")
-    from models import GuideRating  # lazy import
-    # upsert-like logic: replace user's rating if exists
-    existing = GuideRating.query.filter_by(guide_id=guide_id, user_id=user_id).first()
-    if existing:
-        existing.value = value
-    else:
-        db.session.add(GuideRating(guide_id=guide_id, user_id=user_id, value=value))
-    db.session.commit()
 
-    # aggregate
+    try:
+        if db.session.bind.dialect.name == "sqlite":
+            from sqlalchemy.dialects.sqlite import insert
+
+            stmt = insert(GuidesRating).values(
+                guide_id=guide_id,
+                user_id=user_id,
+                rating=value,
+            ).on_conflict_do_update(
+                index_elements=[GuidesRating.guide_id, GuidesRating.user_id],
+                set_={"rating": value},
+            )
+            db.session.execute(stmt)
+        else:
+            existing = GuidesRating.query.filter_by(
+                guide_id=guide_id, user_id=user_id
+            ).first()
+            if existing:
+                existing.rating = value
+            else:
+                db.session.add(GuidesRating(
+                    guide_id=guide_id, user_id=user_id, rating=value
+                ))
+
+        db.session.commit()
+
+    except IntegrityError:
+        db.session.rollback()
+        raise ValueError("Unique constraint on (guide_id, user_id) is missing or violated.")
+
     agg = db.session.execute(
-        select(func.count(GuideRating.id), func.avg(GuideRating.value)).where(GuideRating.guide_id == guide_id)
+        select(
+            func.count(GuidesRating.id),
+            func.avg(GuidesRating.rating)
+        ).where(GuidesRating.guide_id == guide_id)
     ).one()
-    count, avg = int(agg[0]), float(agg[1]) if agg[1] is not None else 0.0
+
+    count = int(agg[0])
+    avg = float(agg[1]) if agg[1] is not None else 0.0
     return {"guide_id": guide_id, "count": count, "avg": round(avg, 3)}
