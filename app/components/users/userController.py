@@ -29,13 +29,13 @@ def create_user():
         )
         db.session.add(new_user)
         db.session.commit()
-        return jsonify({'message': 'User created successfully'}), 201
+        return jsonify({'message': 'User created successfully'}), 2
     else:
         return jsonify({'message': 'Invalid data or user already exists'}), 400
 
 
 @bp.route('/login', methods=['POST'])
-def login(data):
+def login():
     data = request.get_json()
     if not data:
         return jsonify({'message': 'No input data provided'}), 400
@@ -45,7 +45,7 @@ def login(data):
 
     user = User.query.filter_by(username=username).first()
     if user and check_password_hash(user.password_hash, password):
-        session['user_id'] = user.id
+        session['user_id'] = user.user_id
         return jsonify({'message': 'Login successful'}), 200
     else:
         return jsonify({'message': 'Invalid username or password'}), 401
