@@ -13,7 +13,7 @@ from app.components.guides.guideService import (
     get_audio_for_guide, get_recommended_guides, add_rating
 )
 
-bp = Blueprint("guides", __name__)
+bp = Blueprint("guides", __name__, url_prefix="/api/guides")
 
 
 @bp.delete("/<int:guide_id>")
@@ -118,4 +118,5 @@ def api_add_guide():
 
     db.session.add(guide)
     db.session.commit()
+    return jsonify({"id": guide.id}), 200
 
