@@ -2,7 +2,7 @@ from flask import Blueprint, request, current_app, g, jsonify,session
 from sqlalchemy import query
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.database.models import db, User, GuidesRecord
-from userServices import check_if_data_is_valid
+from userServices import check_if_data_is_valid, manage_picture_upload
 from flask_login import login_required
 
 bp = Blueprint('user', __name__)
@@ -14,9 +14,11 @@ def create_user():
     if check_if_data_is_valid(data):
         username = data.get('username')
         password = data.get('password')
-        profile_url = data.get('profile_url')
+        profile_picture = data.get('profile_picture')
         city_of_origin = data.get('city_of_origin')
         social_media_links = data.get('social_media_links')
+
+        profile_url = manage_picture_upload(profile_picture)
 
         # Create new user
         new_user = User(

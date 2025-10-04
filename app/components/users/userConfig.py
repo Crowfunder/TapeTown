@@ -1,1 +1,0 @@
-DEFAULT_PROFILE_URL = "https://example.com/default-profile.png" #it needs to be created
