@@ -1,10 +1,10 @@
 from flask import Blueprint, request, current_app, g, jsonify,session
 from sqlalchemy import select
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.database.models import db, User, GuidesRecord
+from backend.app.database.models import db, User, GuidesRecord
 from .userServices import check_if_data_is_valid, manage_picture_upload
 from flask_login import login_required
-from app.database.schema.schemas import guide_out_many
+from backend.app.database.schema.schemas import guide_out_many
 
 bp = Blueprint('user', __name__, url_prefix="/api/users")
 

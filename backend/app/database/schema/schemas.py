@@ -1,6 +1,6 @@
 from marshmallow import Schema, fields, EXCLUDE, post_load
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
-from app.database.models import GuidesRecord
+from backend.app.database.models import GuidesRecord
 
 class GuideOutSchema(SQLAlchemyAutoSchema):
     class Meta:

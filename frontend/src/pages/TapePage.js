@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './TapePage.css';
 import ControlPanel from './ControlPanel';
+import CONFIG from './Config';
 
 export default function TapePage({ onBack, onAdd }) {
   const [tapes, setTapes] = useState([]);
@@ -11,24 +12,96 @@ export default function TapePage({ onBack, onAdd }) {
     fetchTapes();
   }, []);
 
+  const fetchFileByHash = async (hash, type = 'image') => {
+    try {
+      const response = await fetch(`${CONFIG.API_URL.replace(/\/$/, '')}/files/${hash}`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      return URL.createObjectURL(blob);
+    } catch (error) {
+      console.error(`Error fetching ${type} file:`, error);
+      return null;
+    }
+  };
+
   const fetchTapes = async () => {
+    async function fetchRecommendedGuides(lat, lon, radiusKm = 10000, limit = 20) {
+      const params = new URLSearchParams({
+        latitude: lat,
+        longitude: lon,
+        radius_km: radiusKm,
+        limit: limit,
+      });
+
+      const url = `${CONFIG.API_URL.replace(/\/$/, '')}/guides/recommended?${params.toString()}`;
+
+      try {
+        const response = await fetch(url, {
+          method: 'GET',
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const guides = await response.json();
+        return guides;
+
+      } catch (error) {
+        console.error('Error fetching recommended guides:', error);
+        return [];
+      }
+    }
+
     try {
       setLoading(true);
-      // Replace with your actual API endpoint
-      const response = await fetch('YOUR_API_ENDPOINT_HERE');
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch tapes');
+      const guidesData = await fetchRecommendedGuides(55, 55); // hardcoded, to be pulled from user
+
+      console.log('Guides data received:', guidesData);
+
+      if (!guidesData || guidesData.length === 0) {
+        console.log('No guides data received');
+        setTapes([]);
+        setLoading(false);
+        return;
       }
-      
-      const data = await response.json();
-      setTapes(data);
+
+      // Fetch images and audio for each tape
+      const tapesWithMedia = await Promise.all(
+        guidesData.map(async (tape) => {
+          console.log('Processing tape:', tape);
+
+          const imageUrl = tape.image_hash
+            ? await fetchFileByHash(tape.image_hash, 'image')
+            : null;
+
+          return {
+            id: tape.user_id || tape.id,
+            userName: `User ${tape.user_id || tape.id}`,
+            userAvatar: null,
+            likes: tape.likes || 0,
+            title: tape.name || 'Untitled',
+            imageUrl: imageUrl,
+            audioUrl: null,
+            createdAt: tape.created_at
+          };
+        })
+      );
+
+      console.log('Tapes with media:', tapesWithMedia);
+      setTapes(tapesWithMedia);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching tapes:', err);
       setError(err.message);
       setLoading(false);
-      
+
       // Mock data for demonstration
       setTapes([
         {
@@ -37,7 +110,8 @@ export default function TapePage({ onBack, onAdd }) {
           userAvatar: null,
           likes: 3000,
           title: 'Lorem ipsum',
-          imageUrl: null
+          imageUrl: null,
+          audioUrl: null
         },
         {
           id: 2,
@@ -45,7 +119,8 @@ export default function TapePage({ onBack, onAdd }) {
           userAvatar: null,
           likes: 3000,
           title: 'Lorem ipsum',
-          imageUrl: null
+          imageUrl: null,
+          audioUrl: null
         }
       ]);
     }
@@ -102,7 +177,7 @@ export default function TapePage({ onBack, onAdd }) {
           <h1 className="tape-brand" onClick={handleHomeClick}>TAPE TOWN</h1>
           <div className="loading">Loading tapes...</div>
         </div>
-        <ControlPanel 
+        <ControlPanel
           onHome={handleHomeClick}
           onAdd={handleAddClick}
           onProfile={handleProfileClick}
@@ -144,6 +219,15 @@ export default function TapePage({ onBack, onAdd }) {
                   <div className="content-placeholder"></div>
                 )}
               </div>
+
+              {/* Audio Player */}
+              {tape.audioUrl && (
+                <div className="tape-audio">
+                  <audio controls src={tape.audioUrl}>
+                    Your browser does not support the audio element.
+                  </audio>
+                </div>
+              )}
 
               {/* Tape Footer */}
               <div className="tape-footer">

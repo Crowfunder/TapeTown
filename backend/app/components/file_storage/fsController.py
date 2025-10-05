@@ -1,7 +1,7 @@
 from flask import Blueprint, request, current_app,send_file, g, render_template, flash, redirect, url_for, jsonify, Response, session
 import hashlib, os
-from app.components.file_storage.fsConfig import *
-from app.components.file_storage.fsService import *
+from backend.app.components.file_storage.fsConfig import *
+from backend.app.components.file_storage.fsService import *
 
 bp = Blueprint('bp_fstorage', __name__, url_prefix="/api/files")
 os.makedirs(BLOBS_DIR, exist_ok=True)
