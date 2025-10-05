@@ -6,3 +6,4 @@ flask-marshmallow
 requests
 flask-login
 marshmallow_sqlalchemy
+numpy
