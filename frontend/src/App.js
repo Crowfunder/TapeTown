@@ -3,9 +3,15 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import TapePage from './pages/TapePage';
+import TapeDetailsPage from './pages/TapeDetailsPage';
+import RecordPage from './pages/RecordPage';
+import ProfilePage from './pages/ProfilePage';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('landing');
+  const [selectedTapeId, setSelectedTapeId] = useState(null);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null); // Add this line for logged in user
 
   const navigateToLogin = () => {
     console.log('Navigating to login');
@@ -28,15 +34,21 @@ export default function App() {
   };
 
   const navigateToAdd = () => {
-    console.log('Navigating to add');
-    setCurrentPage('add');
-    // You'll create this page later
+    console.log('Navigating to record page');
+    setCurrentPage('record');
   };
 
-  const navigateToProfile = () => {
-    console.log('Navigating to profile');
+  // Update the profile navigation to handle both self and other profiles
+  const navigateToProfile = (userId = null) => {
+    console.log('Navigating to profile:', userId || currentUserId);
+    setSelectedUserId(userId || currentUserId || '1'); // Use currentUserId as fallback before '1'
     setCurrentPage('profile');
-    // You'll create this page later
+  };
+
+  const navigateToTapeDetails = (tapeId) => {
+    console.log('Navigating to tape details:', tapeId);
+    setSelectedTapeId(tapeId);
+    setCurrentPage('tapeDetails');
   };
 
   console.log('Current page:', currentPage);
@@ -63,6 +75,44 @@ export default function App() {
     return (
       <TapePage 
         onBack={navigateToLanding}
+        onTapeSelect={navigateToTapeDetails}
+        onAdd={navigateToAdd}
+        onProfile={navigateToProfile}
+        currentUserId={currentUserId}
+      />
+    );
+  }
+
+  if (currentPage === 'tapeDetails') {
+    return (
+      <TapeDetailsPage 
+        tapeId={selectedTapeId}
+        onBack={() => setCurrentPage('tapes')}
+        onAdd={navigateToAdd}
+        onProfile={navigateToProfile}
+        currentUserId={currentUserId}
+      />
+    );
+  }
+
+  if (currentPage === 'record') {
+    return (
+      <RecordPage 
+        onBack={() => setCurrentPage('tapes')}
+        onSave={() => setCurrentPage('tapes')}
+        onProfile={navigateToProfile} // Added onProfile handler
+        currentUserId={currentUserId}
+      />
+    );
+  }
+
+  if (currentPage === 'profile') {
+    return (
+      <ProfilePage 
+        userId={selectedUserId}
+        onBack={() => setCurrentPage('tapes')}
+        onAdd={navigateToAdd}
+        onTapeSelect={navigateToTapeDetails}
       />
     );
   }
