@@ -13,7 +13,7 @@ def create_user():
     if check_if_data_is_valid():
         username = request.form.get('username')
         password = request.form.get('password')
-        profile_picture = request.form.get('profile_picture')
+        profile_picture = request.files.get('profile_picture')
         city_of_origin = request.form.get('city_of_origin')
         social_media_links = request.form.get('social_media_links')
 
