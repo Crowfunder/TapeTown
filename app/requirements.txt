@@ -1,8 +1,0 @@
-flask
-SQLAlchemy
-Flask-SQLAlchemy
-Werkzeug
-flask-marshmallow
-requests
-flask-login
-marshmallow_sqlalchemy

@@ -1,0 +1,294 @@
+/* Tape Page Container */
+.tape-page {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #c7b8d4, #4a5f7a);
+  padding: 2rem 1.5rem 8rem; /* Increased bottom padding for fixed navbar */
+}
+
+.tape-container {
+  width: 100%;
+  max-width: 40rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Brand Title */
+.tape-brand {
+  font-size: 3rem;
+  font-weight: 900;
+  color: #134e4a;
+  margin-bottom: 3rem;
+  letter-spacing: -0.025em;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.tape-brand:hover {
+  color: #0f766e;
+}
+
+/* Loading State */
+.loading {
+  font-size: 1.125rem;
+  color: #ffffff;
+  text-align: center;
+  padding: 3rem;
+}
+
+/* Tapes List */
+.tapes-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Tape Card */
+.tape-card {
+  background: #ffffff;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Tape Header */
+.tape-header {
+  padding: 1.25rem 1.5rem;
+  background: #e5e7eb;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.user-avatar {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: #d1d5db;
+}
+
+.user-name {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+/* Tape Content */
+.tape-content {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.tape-content img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.content-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #d1d5db 0%, #e5e7eb 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Cassette Tape Icon */
+.cassette-icon {
+  width: 60%;
+  height: 70%;
+  background: #9ca3af;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.cassette-reels {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.reel {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  background: #6b7280;
+  border: 0.5rem solid #4b5563;
+  position: relative;
+}
+
+.reel::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #d1d5db;
+}
+
+/* Tape Footer */
+.tape-footer {
+  padding: 1.5rem;
+  background: #f3f4f6;
+}
+
+/* Tape Stats */
+.tape-stats {
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.like-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  transition: color 0.2s;
+  padding: 0.5rem;
+}
+
+.like-button:hover {
+  color: #ef4444;
+}
+
+.like-button svg {
+  width: 24px;
+  height: 24px;
+}
+
+.like-count {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+/* Tape Title */
+.tape-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #111827;
+  margin-bottom: 1rem;
+}
+
+/* Audio Controls */
+.audio-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.audio-btn {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  border: none;
+  background: #d1d5db;
+  color: #4b5563;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.audio-btn:hover {
+  background: #9ca3af;
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+.audio-btn:active {
+  transform: scale(0.95);
+}
+
+.audio-btn-play {
+  width: 4rem;
+  height: 4rem;
+  background: #4b5563;
+  color: #ffffff;
+}
+
+.audio-btn-play:hover {
+  background: #374151;
+}
+
+.audio-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.audio-btn-play svg {
+  width: 28px;
+  height: 28px;
+  margin-left: 2px;
+}
+
+/* Bottom Spacer */
+.bottom-spacer {
+  height: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .tape-brand {
+    font-size: 2.5rem;
+  }
+
+  .tape-card {
+    border-radius: 1rem;
+  }
+
+  .tape-title {
+    font-size: 1.25rem;
+  }
+
+  .reel {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .reel::after {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
