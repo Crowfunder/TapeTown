@@ -4,8 +4,10 @@ from backend.app.app import db
 from flask import Blueprint, request, jsonify
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound
 from backend.app.database.schema.schemas import guide_out_many
+from backend.app.components.audio_noise_correct.ancService import *
 from backend.app.components.file_storage.fsService import fs_get, fs_post
-
+from werkzeug.datastructures import FileStorage
+import io
 from backend.app.components.file_storage.fsService import *
 from backend.app.database.models import GuidesRating, GuidesRecord
 from backend.app.database.schema.schemas import guide_out_one
@@ -111,7 +113,50 @@ def api_add_guide():
     if missing:
         return {"error": f"Missing fields: {', '.join(missing)}"}, 400
 
-    audio_hash = fs_post(audio)
+    try:
+        target_fs = int(request.form.get("target_fs", DEFAULT_TARGET_FS))
+        M = int(request.form.get("M", DEFAULT_M))
+        mu = float(request.form.get("mu", DEFAULT_MU))
+        mode = (request.form.get("mode", "y") or "y").lower()   # 'y' lub 'e'
+        if mode not in ("y", "e"):
+            mode = "y"
+        if not (4000 <= target_fs <= 48000):
+            return {"error": "target_fs should be in 4000..48000"}, 400
+        if not (4 <= M <= 4096):
+            return {"error": "M should be in 4..4096"}, 400
+        if not (1e-6 <= mu <= 1e-1):
+            return {"error": "mu should be in [1e-6 .. 1e-1]"}, 400
+    except Exception:
+        return {"error": "Invalid LMS params (target_fs/M/mu/mode)"}, 400
+
+    try:
+        in_bytes = audio.read()
+        if not in_bytes:
+            return {"error": "Empty audio file"}, 400
+
+        den_bytes, fs_out = denoise_lms_wav_bytes(
+            in_bytes,
+            target_fs=target_fs,
+            M=M,
+            mu=mu,
+            mode=mode,
+        )
+
+        den_name = audio.filename.rsplit(".", 1)[0] + "_denoised_LMS.wav"
+        den_file = FileStorage(
+            stream=io.BytesIO(den_bytes),
+            filename=den_name,
+            content_type="audio/wav",
+        )
+        audio_to_store = den_file  # zapisujemy już oczyszczone
+    except Exception as e:
+        # awaryjnie zapisujemy oryginał, ale sygnalizujemy проблему
+        # (możesz tu zrobić return 500, jeśli chcesz жёстко валить запрос)
+        audio.seek(0)
+        audio_to_store = audio
+
+    # --- Reszta без zmian: zapis obrazka i rekordu ---
+    audio_hash = fs_post(audio_to_store)
     image_hash = fs_post(image)
 
     guide = GuidesRecord(
@@ -119,7 +164,7 @@ def api_add_guide():
         user_id=user_id,
         latitude=lat,
         longitude=lon,
-        audio_hash=audio_hash,
+        audio_hash=audio_hash,   # tu już oczyszczony WAV
         image_hash=image_hash,
     )
 
