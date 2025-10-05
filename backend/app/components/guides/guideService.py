@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import func, select, desc
 from sqlalchemy.orm import Session
 
-from app.database.models import db, GuidesRecord, GuidesRating
+from backend.app.database.models import db, GuidesRecord, GuidesRating
 
 #funkcja pomocnicza do uzyskania propozycji
 def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:

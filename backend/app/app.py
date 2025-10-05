@@ -4,8 +4,8 @@ from flask import Flask, render_template
 from werkzeug.debug import DebuggedApplication
 import logging
 
-from app.database.models import *
-from app.database.models import db
+from backend.app.database.models import *
+from backend.app.database.models import db
 
 
 # Flask quickstart:
@@ -24,7 +24,9 @@ def create_app():
                 static_folder=STATIC_FOLDER,
                 static_url_path='/static'
     )
+    from flask_cors import CORS
 
+    CORS(app)  # This enables CORS for all routes
 
     # Load config from file config.py
     app.config.from_pyfile('config.py')
@@ -61,7 +63,7 @@ def create_app():
                 db_path = sys.argv[idx + 1]
                 break
     if not db_path:
-        db_path = f"{os.getcwd()}/instance/database.sqlite"
+        db_path = f"{os.getcwd()}/backend/instance/database.sqlite"
 
     app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
     db.init_app(app)
@@ -74,13 +76,13 @@ def create_app():
     # Register blueprints (views)
     # https://flask.palletsprojects.com/en/3.0.x/blueprints/
 
-    from .components.users.userController import bp as bp_user
+    from backend.app.components.users.userController import bp as bp_user
     app.register_blueprint(bp_user)
 
-    from .components.guides.guideController import bp as bp_guides
+    from backend.app.components.guides.guideController import bp as bp_guides
     app.register_blueprint(bp_guides)
 
-    from .components.file_storage.fsController import bp as bp_fs
+    from backend.app.components.file_storage.fsController import bp as bp_fs
     app.register_blueprint(bp_fs)
 
     return app

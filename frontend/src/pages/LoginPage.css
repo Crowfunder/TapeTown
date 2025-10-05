@@ -1,0 +1,216 @@
+/* Login Page Container */
+.login-page {
+  min-height: 100vh;
+  background-color: #f9fafb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 32rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Brand Title */
+.login-brand {
+  font-size: 3rem;
+  font-weight: 900;
+  color: #134e4a;
+  margin-bottom: 4rem;
+  letter-spacing: -0.025em;
+}
+
+/* Login Header */
+.login-heading {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #374151;
+  margin-bottom: 1rem;
+}
+
+.login-description {
+  color: #6b7280;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+/* Form */
+.login-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border: 2px solid #d1d5db;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  border-color: #134e4a;
+}
+
+.form-input::placeholder {
+  color: #9ca3af;
+}
+
+.form-link {
+  color: #6b7280;
+  font-size: 0.875rem;
+  text-decoration: none;
+  align-self: flex-end;
+  transition: color 0.2s;
+}
+
+.form-link:hover {
+  color: #374151;
+}
+
+/* Login Button */
+.btn-login {
+  width: 100%;
+  padding: 1rem;
+  background-color: #4b5563;
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-login:hover {
+  background-color: #374151;
+}
+
+/* Divider */
+.divider-text {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+/* Social Buttons */
+.social-buttons {
+  width: 100%;
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.btn-social {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background-color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-google {
+  color: #374151;
+}
+
+.btn-google:hover {
+  border-color: #4285F4;
+  background-color: #f9fafb;
+}
+
+.btn-facebook {
+  background-color: #4b5563;
+  color: white;
+  border-color: #4b5563;
+}
+
+.btn-facebook:hover {
+  background-color: #374151;
+  border-color: #374151;
+}
+
+.btn-social svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Register Prompt */
+.register-prompt {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.register-link {
+  color: #134e4a;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.register-link:hover {
+  color: #0f766e;
+  text-decoration: underline;
+}
+
+/* Help Text */
+.help-text {
+  color: #6b7280;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.help-link {
+  color: #134e4a;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.help-link:hover {
+  color: #0f766e;
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .login-brand {
+    font-size: 2.5rem;
+  }
+
+  .login-heading {
+    font-size: 2rem;
+  }
+
+  .social-buttons {
+    flex-direction: column;
+  }
+}

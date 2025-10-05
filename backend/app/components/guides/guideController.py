@@ -1,15 +1,15 @@
 # controllers/guides_controller.py
 from __future__ import annotations
-from app.app import db
+from backend.app.app import db
 from flask import Blueprint, request, jsonify
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound
-from app.database.schema.schemas import guide_out_many
-from app.components.file_storage.fsService import fs_get, fs_post
+from backend.app.database.schema.schemas import guide_out_many
+from backend.app.components.file_storage.fsService import fs_get, fs_post
 
-from app.components.file_storage.fsService import *
-from app.database.models import GuidesRating, GuidesRecord
-from app.database.schema.schemas import guide_out_one
-from app.components.guides.guideService import (
+from backend.app.components.file_storage.fsService import *
+from backend.app.database.models import GuidesRating, GuidesRecord
+from backend.app.database.schema.schemas import guide_out_one
+from backend.app.components.guides.guideService import (
     add_guide, remove_guide,
     get_recommended_guides, add_rating
 )
@@ -52,10 +52,10 @@ def get_guide(guide_id: int):
 # return only list of ids
 @bp.get("/recommended")
 def api_get_recommended():
-    lat = request.form.get("latitude", type=float)
-    lon = request.form.get("longitude", type=float)
-    radius = request.form.get("radius_km", default=10.0, type=float)
-    limit = request.form.get("limit", default=20, type=int)
+    lat = request.args.get("latitude", type=float)
+    lon = request.args.get("longitude", type=float)
+    radius = request.args.get("radius_km", default=10.0, type=float)
+    limit = request.args.get("limit", default=20, type=int)
     if lat is None or lon is None:
         raise BadRequest("Query params 'latitude' and 'longitude' are required.")
 
