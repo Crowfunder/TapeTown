@@ -94,28 +94,15 @@ def add_rating(guide_id: int, user_id: int, value: int) -> Dict[str, Any]:
         raise ValueError("Rating must be in 1..5")
 
     try:
-        if db.session.bind.dialect.name == "sqlite":
-            from sqlalchemy.dialects.sqlite import insert
-
-            stmt = insert(GuidesRating).values(
-                guide_id=guide_id,
-                user_id=user_id,
-                rating=value,
-            ).on_conflict_do_update(
-                index_elements=[GuidesRating.guide_id, GuidesRating.user_id],
-                set_={"rating": value},
-            )
-            db.session.execute(stmt)
+        existing = GuidesRating.query.filter_by(
+            guide_id=guide_id, user_id=user_id
+        ).first()
+        if existing:
+            existing.rating = value
         else:
-            existing = GuidesRating.query.filter_by(
-                guide_id=guide_id, user_id=user_id
-            ).first()
-            if existing:
-                existing.rating = value
-            else:
-                db.session.add(GuidesRating(
-                    guide_id=guide_id, user_id=user_id, rating=value
-                ))
+            db.session.add(GuidesRating(
+                guide_id=guide_id, user_id=user_id, rating=value
+            ))
 
         db.session.commit()
 

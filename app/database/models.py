@@ -55,7 +55,7 @@ class GuidesRecord(db.Model):
     audio_hash: str = db.Column(db.String(500), nullable=False)
     image_hash: str = db.Column(db.String(500), nullable=False)
 
-    user_id: int = db.Column(db.Integer, db.ForeignKey("user.user_id"), nullable=False, index=True)
+    user_id: int = db.Column(db.Integer, db.ForeignKey("user.user_id"), nullable=False)
     # user = db.relationship("User", back_populates="guides_record")
 
     likes: int = db.Column(db.Integer, nullable=False, default=0)
