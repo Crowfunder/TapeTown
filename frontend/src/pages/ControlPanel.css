@@ -1,0 +1,114 @@
+/* Control Panel - Fixed at bottom */
+.control-panel {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 3rem);
+  max-width: 32rem;
+  background: #e5e7eb;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  padding: 1rem 1.5rem;
+  z-index: 1000;
+  border-radius: 2rem;
+}
+
+.control-panel-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  gap: 2rem;
+}
+
+/* Control Buttons */
+.control-btn {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  border: none;
+  background: #9ca3af;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.control-btn:hover {
+  background: #6b7280;
+  color: #ffffff;
+  transform: scale(1.08);
+}
+
+.control-btn:active {
+  transform: scale(0.95);
+}
+
+.control-btn.active {
+  background: #4b5563;
+  color: #ffffff;
+}
+
+/* Primary Button (Add/Plus) */
+.control-btn-primary {
+  width: 4.5rem;
+  height: 4.5rem;
+  background: #6b7280;
+  color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.control-btn-primary:hover {
+  background: #4b5563;
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+}
+
+.control-btn-primary.active {
+  background: #374151;
+}
+
+.control-btn svg {
+  width: 28px;
+  height: 28px;
+}
+
+.control-btn-primary svg {
+  width: 36px;
+  height: 36px;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .control-panel {
+    bottom: 1rem;
+    width: calc(100% - 2rem);
+    padding: 0.875rem 1.25rem;
+  }
+
+  .control-panel-container {
+    gap: 1.5rem;
+  }
+
+  .control-btn {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .control-btn-primary {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .control-btn svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .control-btn-primary svg {
+    width: 32px;
+    height: 32px;
+  }
+}
