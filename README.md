@@ -17,3 +17,17 @@ The same case stands when exploring urban areas. Everyone has a story to tell, a
 The interface is intuitive and slightly skeuomorphic. It takes heavy inspiration from the *80s, the era of walkmans*, which is in the DNA of this project. 
 # Used Technologies
 This project was made possible by us, team aye! It includes Sebastian, team lead and his crew, Gabriela, Kiryl and Tymon. We created the app in python, javescript., flask, sqlit4e and figma.
+
+# Running
+- Front end
+  ```
+  $ cd frontend
+  $ npm install
+  $ npm run start
+  ```
+
+- Back end
+- ```
+  $ pip install backend/app/requirements.txt
+  $ flask run
+  ```
