@@ -1,7 +1,7 @@
-from app.components.file_storage.fsController import file_get
-from app.database.models import  User
+from backend.app.components.file_storage.fsController import file_get
+from backend.app.database.models import  User
 from sqlalchemy import select
-from app.components.file_storage.fsService import fs_get, fs_post
+from backend.app.components.file_storage.fsService import fs_get, fs_post
 from flask import request
 
 def check_if_data_is_valid():

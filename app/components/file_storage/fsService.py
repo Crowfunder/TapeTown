@@ -1,8 +1,8 @@
 from time import time
 import flask, os, hashlib
-from app.components.file_storage.fsConfig import *
-from app.app import db
-from app.database.models import FileBlob
+from backend.app.components.file_storage.fsConfig import *
+from backend.app.app import db
+from backend.app.database.models import FileBlob
 
 def fs_post(file):
     """
