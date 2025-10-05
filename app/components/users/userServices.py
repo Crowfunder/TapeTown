@@ -23,4 +23,4 @@ def manage_picture_upload(profile_picture):
         return None
     else:
         picture_hash = fs_post(profile_picture)
-        return fs_get(picture_hash)
+        return picture_hash

@@ -10,10 +10,10 @@ The user is confronted with audio recordings, named *Tapes*, that only appear in
 > Human stories surrounding anything make it appealing, they show us the real value of it. 
 <img width="1920" height="1080" alt="Gradient 14" src="https://github.com/user-attachments/assets/74e5eeb3-3592-4e71-9ff4-b883dd09a5c9" />
 
-The same case stands when exploring urban areas. Everyone has a story to tell, and everyone can appreciate their travels more. Social media format is made for sharing stories. We provide context to places that otherwise would be incomplete to appreciate. 
+The same case stands when exploring urban areas. Everyone has a story to tell, and everyone can appreciate their travels more. Social media format is made for sharing stories. We provide context to places that otherwise would be incomplete to appreciate without a tour guide. 
 # UI
 <img width="1824" height="1080" alt="iPhone 16 Plus Lineup" src="https://github.com/user-attachments/assets/f404e6e6-67aa-4b59-853f-c7749b065fc3" />
 
 The interface is intuitive and slightly skeuomorphic. It takes heavy inspiration from the *80s, the era of walkmans*, which is in the DNA of this project. 
 # Used Technologies
-This project was made possible by ...
+This project was made possible by us, team aye! It includes Sebastian, team lead and his crew, Gabriela, Kiryl and Tymon. We created the app in python, javescript., flask, sqlit4e and figma.
